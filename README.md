@@ -10,7 +10,7 @@ Implement of Rouge Metrics(Under development)
 - [x] Rouge-L
 - [ ] Rouge-W
 
-## Usage:
+## Usage(C++):
 ### Constructor:
 1. ``` Rouge(const std::vector<int> &target, const std::vector<int> &original);```  
 Construct the Rouge with two sentences where the words are represented in numbers.  
