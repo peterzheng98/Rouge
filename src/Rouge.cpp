@@ -151,7 +151,7 @@ int Rouge::_lcs() {
       save = k;
     }
   }
-  return dp[lb - 1];
+  return dp[lb];
 }
 float Rouge::rl(const float &beta) {
   int lcsLength = _lcs();
