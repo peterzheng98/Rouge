@@ -38,6 +38,9 @@ def RougeN(source: str, target: str, splitChars=' ', N=2) -> float:
         if i in targetMap.keys():
             matchCount = targetMap[i]
         matchedPhrases += min(matchCount, originalMap[i])
+    if totalPhrases == 0:
+        matchedPhrases = 0
+        totalPhrases = 1
     return 100.0 * matchedPhrases / totalPhrases
 
 def countLCS(list1: list, list2: list) -> int:
@@ -80,7 +83,29 @@ def RougeL(source: str, target: str, splitChars=' ', beta=1) -> float:
     for i in targetList:
         newTarget.append(wordDict[i])
     lcsLen = countLCS(newSource, newTarget)
+    if len(newSource) == 0 or len(newTarget) == 0 or lcsLen == 0:
+        return 0.0
     Rlcs = 1.0 * lcsLen / len(newSource)
     Plcs = 1.0 * lcsLen / len(newTarget)
     Flcs = 1.0 * (((1.0 + beta * beta) * Rlcs * Plcs) / (Rlcs + beta * beta * Plcs))
     return Flcs
+
+def RougeNList(question, comments, N=2)->list:
+    returnList = []
+    for comment in comments:
+        canadiate = ' '.join(question)
+        reference = ' '.join(comment)
+        score = RougeN(reference, canadiate, N=2)
+        returnList.append((''.join(comment), score))
+    returnList = sorted(returnList, key=lambda x: x[1], reverse=True)
+    return returnList
+
+def RougeLList(question, comments, beta=2)->list:
+    returnList = []
+    for comment in comments:
+        canadiate = ' '.join(question)
+        reference = ' '.join(comment)
+        score = RougeL(reference, canadiate, beta=2)
+        returnList.append((''.join(comment), score))
+    returnList = sorted(returnList, key=lambda x: x[1], reverse=True)
+    return returnList
