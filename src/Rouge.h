@@ -18,11 +18,11 @@ private:
   int currentIdx = 0;
   std::vector<int> _addWord(const std::string& rhs);
   void _clearList();
+  int _lcs();
 
 public:
   void setSplitWords(const char& rhs);
   void debug_addword(const std::string& rhs);
-
 public:
   Rouge(){}
   Rouge(const std::vector<int> &target, const std::vector<int> &original);
@@ -31,6 +31,8 @@ public:
   void reset(const std::string &target, const std::string &original);
   float r1();
   float r2();
+  float rn(const int& n);
+  float rl(const float& beta = 1);
 
 };
 

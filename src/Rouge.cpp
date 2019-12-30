@@ -78,7 +78,7 @@ float Rouge::r1() {
   int totalWords = 0, matchedWords = 0;
   for (auto &it : originalMap) {
     totalWords += it.second;
-    matchedWords += targetMap[it.first];
+    matchedWords += std::min(targetMap[it.first], it.second);
   }
   return 100. * matchedWords / totalWords;
 }
@@ -100,7 +100,63 @@ float Rouge::r2(){
   int totalPhrases = 0, matchedPhrases = 0;
   for(auto &it : originalMap){
     totalPhrases += it.second;
-    matchedPhrases += targetMap[it.first];
+    matchedPhrases += std::min(targetMap[it.first], it.second);
   }
   return 100. * matchedPhrases / totalPhrases;
+}
+float Rouge::rn(const int &n) {
+  if(n == 1) return r1();
+  if(n == 2) return r2();
+  std::map<std::vector<int>, int> targetMap, originalMap;
+  if(n >= target.size() || n >= original.size()){
+    std::cerr << "Unable to calculate the Rouge-N score since the input sentence is not enough." << std::endl;
+    return -1;
+  }
+  for(size_t idx = 0; idx < target.size() - n + 1; ++idx){
+    auto targetElem = std::vector<int>(n);
+    for(size_t idx2 = 0; idx2 < targetElem.size(); ++idx2) targetElem[idx2] = target[idx + idx2];
+    if(targetMap.count(targetElem) == 0) targetMap[targetElem] = 1;
+    else targetMap[targetElem]++;
+  }
+
+  for(size_t idx = 0; idx < original.size() - n + 1; ++idx){
+    auto originalElem = std::vector<int>(n);
+    for(size_t idx2 = 0; idx2 < originalElem.size(); ++idx2) originalElem[idx2] = original[idx + idx2];
+    if(originalMap.count(originalElem) == 0) originalMap[originalElem] = 1;
+    else originalMap[originalElem]++;
+  }
+  int totalPhrases = 0, matchedPhrases = 0;
+  for(auto &it : originalMap){
+    totalPhrases += it.second;
+    matchedPhrases += std::min(targetMap[it.first], it.second);
+  }
+  return 100. * matchedPhrases / totalPhrases;
+}
+int Rouge::_lcs() {
+  // Time Complexity: O(mn)
+  // Space Complexity: O(min(m, n))
+  int save = 0;
+  auto dp = std::vector<int>(std::min(target.size(), original.size()) + 7);
+  for(int i = 0; i < std::min(target.size(), original.size()) + 7; ++i) dp[i] = 0;
+  int la = std::max(target.size(), original.size());
+  int lb = std::min(target.size(), original.size());
+  bool flag = target.size() > original.size();
+  for(size_t idx = 0; idx < la; ++idx){
+    save = dp[0];
+    for(size_t idx2 = 0; idx2 < lb; ++idx2){
+      int k = dp[idx2 + 1];
+      if(flag && target[idx] == original[idx2]) dp[idx2 + 1] = save + 1;
+      else if(!flag && target[idx2] == original[idx]) dp[idx2 + 1] = save + 1;
+      else dp[idx2 + 1] = std::max(dp[idx2], dp[idx2 + 1]);
+      save = k;
+    }
+  }
+  return dp[lb - 1];
+}
+float Rouge::rl(const float &beta) {
+  int lcsLength = _lcs();
+  float Rlcs = 1.0 * lcsLength / target.size();
+  float Plcs = 1.0 * lcsLength / original.size();
+  float Flcs = ((1.0 + beta * beta) * Rlcs * Plcs) / (Rlcs + beta * beta * Plcs);
+  return Flcs;
 }
