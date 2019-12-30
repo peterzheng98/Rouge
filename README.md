@@ -35,5 +35,8 @@ Used for setting up the split char in **Constructor[2] and Members[2]**.
 ## License
 GPL-3.0
 
+## Reference
+[1] Lin, C.-Y. Rouge: A package for automatic evaluation of summaries. City, 2004.
+
 ## Future
 Make a python version.
